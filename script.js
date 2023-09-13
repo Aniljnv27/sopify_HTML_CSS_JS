@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const addButtons = document.querySelectorAll(".add-button");
     const cartIcon = document.getElementById("cart-icon");
     const cart = document.getElementById("cart");
     const cartItems = document.getElementById("cart-items");
@@ -40,11 +39,17 @@ document.addEventListener("DOMContentLoaded", function () {
         e.stopPropagation(); // Prevent clicks inside the cart from propagating to the document body
     });
 
-    // Event listeners for chocolate items
+    // Event listener for chocolate items to show image details on image click
     chocolateItems.forEach(function (item) {
-        item.addEventListener("click", function () {
+        item.addEventListener("click", function (e) {
             const chocolateName = item.querySelector("h2").textContent;
             const chocolatePrice = parseFloat(item.querySelector(".price").textContent.replace("₹", ""));
+
+            // Check if the click event target is the "Add" button
+            if (e.target.classList.contains("add-button")) {
+                // This is the "Add" button, so do nothing here
+                return;
+            }
 
             // Set modal content
             modalName.textContent = chocolateName;
@@ -61,6 +66,8 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.style.display = "none";
     });
 
+    // Event listener for "Add" buttons to add chocolates to the cart
+    const addButtons = document.querySelectorAll(".add-button");
     addButtons.forEach(function (button) {
         button.addEventListener("click", function () {
             const chocolateItem = button.parentElement;
@@ -72,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 selectedChocolate.innerHTML = `
                     <span>${chocolateName}</span>
                     <span class="price">₹${chocolatePrice.toFixed(2)}</span>
+                    <button class="remove-button">Remove</button>
                 `;
                 cartItems.appendChild(selectedChocolate);
 
@@ -84,5 +92,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("You have already added the maximum limit of chocolates (8 items).");
             }
         });
+    });
+
+    // Event listener for "Remove" buttons to remove chocolates from the cart
+    cartItems.addEventListener("click", function (e) {
+        if (e.target.classList.contains("remove-button")) {
+            const itemToRemove = e.target.parentElement;
+            const itemPrice = parseFloat(itemToRemove.querySelector(".price").textContent.replace("₹", ""));
+            
+            // Update the total and item count
+            total -= itemPrice;
+            total = parseFloat(total.toFixed(2));
+            itemCount--;
+            
+            // Update the cart
+            cartItems.removeChild(itemToRemove);
+            cartTotal.textContent = `₹${total.toFixed(2)}`;
+            cartCount.textContent = itemCount;
+        }
     });
 });
